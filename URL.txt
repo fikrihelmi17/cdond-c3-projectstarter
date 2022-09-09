@@ -1,2 +1,3 @@
 A public git repository with your project code [URL01] -> https://github.com/fikrihelmi17/cdond-c3-projectstarter.git
 Front-end application in an S3 bucket [URL02] -> 
+Front-end application in CloudFront [URL03] -> d2gnt07scpum6z.cloudfront.net
