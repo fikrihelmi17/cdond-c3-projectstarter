@@ -297,20 +297,19 @@ jobs:
             apk add --update ansible curl tar gzip npm
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - run:
-          name: Get backend url
+          name: Backend smoke test.
           command: |
             # Fetch and prepare the BACKEND_IP env var
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-      - run:
-          name: Backend smoke test.
-          command: |
             if curl "${API_URL}/api/status" | grep "ok"
             then
-              return 0
+              echo SUCCESS
+              exit 0
             else
-              return 1
+              echo FAIL
+              exit 1
             fi
       - run:
           name: Frontend smoke test.
@@ -319,9 +318,9 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              return 0
+              exit 0
             else
-              return 1
+              exit 1
             fi
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID}
