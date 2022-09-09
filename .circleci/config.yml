@@ -11,13 +11,6 @@ commands:
         type: string
     steps:
       - run:
-          name: Destroy frontend
-          when: on_fail
-          command: |
-            aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID} --force
-            echo frontend-${CIRCLE_WORKFLOW_ID} 
-            aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID}
-      - run:
           name: Destroy backend
           when: on_fail
           command: |
@@ -294,18 +287,16 @@ jobs:
           command: |
             apk add --update ansible curl tar gzip npm
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
-      #- run:
-      #    name: Get backend url
-      #    command: |
-      #      # Fetch and prepare the BACKEND_IP env var
-      #      export API_URL="http://${BACKEND_IP}:3030"
-      #      echo "${API_URL}"
+      - run:
+          name: Get backend url
+          command: |
+            # Fetch and prepare the BACKEND_IP env var
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
       - run:
           name: Backend smoke test.
           command: |
-            # Fetch and prepare the BACKEND_IP env var
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
               return 0
@@ -319,10 +310,33 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              return 1
+              return 0
             else
               return 1
             fi
+      - destroy_environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yum -y install tar gzip
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            # Change the initial stack name, as applicable to you
+            aws cloudformation deploy \
+                    --template-file .circleci/files/cloudfront.yml \
+                    --stack-name InitialStack \
+                    --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+                    --tags project=udapeople
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
