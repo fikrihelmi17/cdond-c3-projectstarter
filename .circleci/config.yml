@@ -194,16 +194,12 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           command: |
-            yum install -y npm
-            yum install -y python3
-            yum install -y ansible
-            yum install -y awscli
-            yum install -y tar gzip
+            yum -y install npm python3 ansible awscli tar gzip npm
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
@@ -236,7 +232,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible curl aws-cli tar gzip npm
+            apk add --update ansible curl tar gzip npm
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - run:
           name: Deploy backend
           command: |
