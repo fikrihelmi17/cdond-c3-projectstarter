@@ -9,12 +9,6 @@ commands:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
-      - run:
-          name: Destroy frontend environments
-          when: on_fail
-          command: |
-            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
 
 jobs:
   build-frontend:
@@ -120,13 +114,13 @@ jobs:
       - run:
           name: Install Tar and Gzip
           command: |
-            yum -y install tar gzip
+            yum -y install tar gzip npm
       - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name "udapeople-backend" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
       - run:
@@ -134,9 +128,9 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=udapeople \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -158,12 +152,12 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["77:8b:2b:17:b4:21:69:0e:26:ec:43:53:b6:49:f4:4a"]
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
+            apk add --update ansible curl aws-cli
+      - attach_workspace:
+          at: ~/
       - run:
           name: Configure server
           command: |
