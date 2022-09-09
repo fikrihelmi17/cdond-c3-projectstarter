@@ -3,7 +3,7 @@
 - name: Copy backend compressed file 
   become: true
   copy:
-    src: /root/project/artifact.tar.gz
+    src: ~/project/artifact.tar.gz #/root/project/artifact.tar.gz
     dest: /home/ubuntu/backend/
 - name: Extract backend files
   become: true
