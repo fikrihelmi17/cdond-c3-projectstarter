@@ -1,4 +1,5 @@
 A public git repository with your project code [URL01] -> https://github.com/fikrihelmi17/cdond-c3-projectstarter.git
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 Front-end application in an S3 bucket [URL02] -> 
 =======
@@ -6,3 +7,7 @@ Front-end application in an S3 bucket [URL02] -> https://udapeople-4c1de5c.s3.ap
 Front-end application in CloudFront [URL03] -> d2gnt07scpum6z.cloudfront.net
 Evidence of healthy back-end application [URL04] -> http://13.212.110.176:3030/api/status
 >>>>>>> Stashed changes
+=======
+Front-end application in an S3 bucket [URL02] -> 
+Front-end application in CloudFront [URL03] -> d2gnt07scpum6z.cloudfront.net
+>>>>>>> dev-branch
