@@ -328,6 +328,8 @@ jobs:
       - run:
           name: Store the old Workflow ID
           command: |
+          echo backend-${CIRCLE_WORKFLOW_ID}
+            aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID}
             export OldWorkflowID=$(aws cloudformation \
                 list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                 --no-paginate --output text)
@@ -354,7 +356,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Get old stack workflow id
+          name: Delete environment
           command: |
             # Fetch the Old workflow ID
             curl https://kvdb.io/TVrumnMiKiaLGKcuV7rN3x/oldworkflowid >> ~/OldWorkflowID.txt
@@ -364,7 +366,7 @@ jobs:
             export CurrentWorkflowID=$(aws cloudformation \
             list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
             --no-paginate --output text)
-            echo CurrentWorkflowID:"${CurrentWorkflowID}"
+            echo CurrentWorkflowID: "${CurrentWorkflowID}"
 
             echo "udapeople-${OldWorkflowID}"
             echo "backend-${OldWorkflowID}"
@@ -373,9 +375,9 @@ jobs:
             if [[ "${CurrentWorkflowID}" != "${OldWorkflowID}" ]]
             then
                 echo "deleted"
-                aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-                aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-                aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+                aws s3 rm "s3://${OldWorkflowID}" --recursive
+                #aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+                #aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
              else
                 echo "fail"
             fi
