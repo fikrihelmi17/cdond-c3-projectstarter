@@ -1,4 +1,4 @@
-- name: "upgrade packages."
+- name: "upgrade package."
   become: true
   apt:
     upgrade: "yes"
