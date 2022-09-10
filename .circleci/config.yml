@@ -162,7 +162,7 @@ jobs:
             aws ec2 describe-instances \
             \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:project,Values=udapeople" \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
@@ -228,7 +228,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -374,10 +374,10 @@ jobs:
             
             if [[ "${CurrentWorkflowID}" != "${OldWorkflowID}" ]]
             then
-                echo "deleted"
-                aws s3 rm "s3://${OldWorkflowID}" --recursive
+                aws s3 rb "s3://${OldWorkflowID}" --force
                 #aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
                 #aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+                echo "deleted"
              else
                 echo "fail"
             fi
