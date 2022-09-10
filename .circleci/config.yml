@@ -326,6 +326,15 @@ jobs:
           command: |
             yum -y install tar gzip
       - run:
+          name: Store the old Workflow ID
+          command: |
+            export OldWorkflowID=$(aws cloudformation \
+                list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+                --no-paginate --output text)
+            echo OldWorkflowID: $OldWorkflowID
+            # Push it to kvdb.io
+            curl https://kvdb.io/TVrumnMiKiaLGKcuV7rN3x/oldworkflowid -d "$OldWorkflowID"
+      - run:
           name: Update cloudfront distribution
           command: |
             # Change the initial stack name, as applicable to you
@@ -348,23 +357,27 @@ jobs:
           name: Get old stack workflow id
           command: |
             # Fetch the Old workflow ID
-            export OldWorkflowID=$(aws cloudformation \
-                    list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-                    --no-paginate --output text)
-            echo OldWorkflowID: "${OldWorkflowID}"
-            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-            # Fetch the stack names          
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-                    --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-            echo Stack names: "${STACKS[@]}" 
-      - run:
-          name: Remove old stacks and files
-          command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            curl https://kvdb.io/TVrumnMiKiaLGKcuV7rN3x/oldworkflowid >> ~/OldWorkflowID.txt
+            export OldWorkflowID=$(cat ~/OldWorkflowID.txt)
+            echo OldWorkflowID: ${OldWorkflowID}
+
+            export CurrentWorkflowID=$(aws cloudformation \
+            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --no-paginate --output text)
+            echo CurrentWorkflowID:"${CurrentWorkflowID}"
+
+            echo "udapeople-${OldWorkflowID}"
+            echo "backend-${OldWorkflowID}"
+            echo "frontend-${OldWorkflowID}"
+            
+            if [[ "${CurrentWorkflowID}" != "${OldWorkflowID}" ]]
             then
-              aws s3 rm s3://udapeople-${oldWorkflowID} --recursive
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+                echo "deleted"
+                aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+                aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+                aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+             else
+                echo "fail"
             fi
 
 workflows:
