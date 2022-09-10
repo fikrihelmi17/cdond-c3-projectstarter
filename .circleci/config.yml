@@ -326,7 +326,7 @@ jobs:
           command: |
             yum -y install tar gzip
       - run:
-          name: Store the old Workflow ID
+          name: Store old Workflow ID
           command: |
           echo "backend-${CIRCLE_WORKFLOW_ID}"
             aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID}
