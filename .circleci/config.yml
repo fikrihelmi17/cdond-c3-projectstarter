@@ -328,7 +328,7 @@ jobs:
       - run:
           name: Store the old Workflow ID
           command: |
-          echo backend-${CIRCLE_WORKFLOW_ID}
+          echo "backend-${CIRCLE_WORKFLOW_ID}"
             aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID}
             export OldWorkflowID=$(aws cloudformation \
                 list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
