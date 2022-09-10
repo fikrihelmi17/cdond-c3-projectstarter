@@ -5,7 +5,7 @@ orbs:
 
 commands:
   destroy_environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    description: Destroy stacks given a workflow ID
     parameters:
       workflow_id:
         type: string
