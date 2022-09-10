@@ -11,6 +11,13 @@
     cd /home/ubuntu/backend
     tar -vxf artifact.tar.gz
     rm artifact.tar.gz
+- name: Install dependencies
+  become: true
+  shell: |
+    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+    apt-get install -y nodejs
+    npm install -g npm
+    npm install -g pm2
 - name : Compile and start app
   become : true 
   shell : | 
