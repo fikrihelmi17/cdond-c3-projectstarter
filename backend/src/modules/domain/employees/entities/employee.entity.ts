@@ -1,4 +1,5 @@
-import * as moment from 'moment-timezone';
+var moment = require('moment-timezone'); 
+moment().tz("America/Los_Angeles").format();
 import { AggregateRoot } from '../../../common/entities';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { CreateEmployee } from '../commands/create-employee.command';
